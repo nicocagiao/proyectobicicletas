@@ -6,7 +6,10 @@ var bicicletaSchema = new Schema({
     color: String,
     modelo: String,
     ubicacion:{
-        type: [Number], index : {type : '2dsphere', sparse: true}
+        type: [Number],
+        index : {
+            type : '2dsphere',
+            sparse: true}
     }
 });
 
