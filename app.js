@@ -38,11 +38,7 @@ app.use(session({
 
 var mongoose = require('mongoose');
 
-
-// mongodb+srv://admin:<password>@red-bicicletas.vjcxa.mongodb.net/<dbname>?retryWrites=true&w=majority
-// var mongoDB = 'mongodb://localhost/red_bicicletas';
-
-var mongoDB = 'mongodb+srv://admin:y4ymtM3Z8aT8n433@red-bicicletas.vjcxa.mongodb.net/<dbname>?retryWrites=true&w=majority';
+var mongoDB = process.env.MONGO_URI;
 mongoose.connect(mongoDB,{useNewUrlParser : true, useUnifiedTopology : true});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
