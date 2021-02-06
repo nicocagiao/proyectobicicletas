@@ -145,6 +145,10 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+app.use('/privacy_policy', function(req, res) {
+  res.sendFile('public/privacy_policy.html');
+});
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
