@@ -149,6 +149,10 @@ app.use('/privacy_policy', function(req, res) {
   res.sendFile('public/privacy_policy.html');
 });
 
+app.use('/google56f22af42e685870', function(req, res) {
+  res.sendFile('public/google56f22af42e685870.html');
+});
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
