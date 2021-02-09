@@ -1,5 +1,5 @@
 var express = require('express');
-const router = express.Router();
+var router = express.Router();
 const usuariosController = require('../controllers/usuarios')
 
 router.get('/', usuariosController.list);

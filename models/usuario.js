@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 var reserva = require('./reserva');
+
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -11,7 +12,7 @@ const mailer = require('../mailer/mailer');
 var Schema = mongoose.Schema;
 
 const validateEmail = function(email){
-    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return re.test(email);
 };
 
@@ -28,7 +29,7 @@ var usuarioSchema = new Schema({
         lowercase: true,
         unique: true,
         validate:[validateEmail, 'Por favor, ingrese un email válido'],
-        match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/]
+        match: [/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/]
     },
     password: {
         type: String,
@@ -66,6 +67,7 @@ usuarioSchema.methods.reservar = function(biciId, desde, hasta, cb){
 usuarioSchema.methods.enviar_mail_bienvenida = function(cb){
     const token = new Token({ usuario: this.id, token: crypto.randomBytes(16).toString('hex')});
     const email_destination = this.email;
+
     token.save(function(err){
         if (err) {return console.log(err.message);}
 
@@ -76,9 +78,36 @@ usuarioSchema.methods.enviar_mail_bienvenida = function(cb){
             text: 'hola, \n\n' + 'por favor, para verificar su cuenta haga click en este link : \n' + 'http://localhost:3000' + '\/token/confirmation\/' + token.token + '.\n'
         };
         mailer.sendMail(mailOptions, function(err){
-            if (err) { return console.log(err.message); }
+            if (err) 
+                return console.log(err.message);
+            
             console.log('Un Mail de verificación ha sido enviado a ' + email_destination + '.');
         });
+    });
+}
+
+usuarioSchema.methods.resetPassword = function(cb){
+    const token = new Token({_userId: this.id, token: crypto.randomBytes(16).toString('hex')});
+    const email_destination = this.email;
+    token.save(function(err){
+        if(err)
+            return cb(err);
+        
+        const mailOptions = {
+            from: 'no-reply@redbicicletas.com',
+            to: email_destination,
+            subject: 'Reseteo de password de cuenta',
+            text: 'Hola,\n\n Por favor, para resetear el password de su cuenta haga click en este link: \n' + 'http://localhost:5000' + '\/resetPassword\/' + token.token + '.\n'
+        };
+
+        mailer.sendMail(mailOptions, function(err){
+            if(err)
+                return cb(err);
+            
+            console.log('Se envio un mail para resetear el password a: ' + email_destination + '.');
+        });
+
+        cb(null);
     });
 }
 
