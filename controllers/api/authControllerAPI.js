@@ -37,7 +37,7 @@ module.exports = {
                 res.status(200).json({message: "Usuario encontrado o creado!", data: {user: req.user, token: token}});
             }).catch( (err) => {
                 console.log(err);
-                res.status(500.json({message: err.message});
+                res.status(500).json({message: err.message});
             });
        }else{
            res.status(401);
