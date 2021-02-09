@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -12,15 +11,15 @@ const jwt = require('jsonwebtoken');
 
 var indexRouter = require('./routes/index');
 var usuariosRouter = require('./routes/usuarios');
-
 var tokenRouter = require('./routes/token');
 var bicicletasRouter = require('./routes/bicicletas');
-
-//API
-
 var bicicletasAPIRouter = require('./routes/api/bicicletas');
 var usuariosAPIRouter = require('./routes/api/usuarios');
 var authAPIRouter = require('./routes/api/auth');
+
+const Usuario = require('./models/usuario');
+const Token = require('./models/token');
+const assert  = require('assert');
 
 let store;
 if (process.env.NODE_ENV === 'development'){
@@ -147,17 +146,11 @@ app.post('/resetPassword',  function(req, res){
 app.use('/', indexRouter);
 app.use('/usuarios', usuariosRouter);
 app.use('/token', tokenRouter);
-
 app.use('/bicicletas', loggedIn, bicicletasRouter);
 
 app.use('/api/auth', authAPIRouter);
 app.use('/api/bicicletas', validarUsuario, bicicletasAPIRouter);
 app.use('/api/usuarios', usuariosAPIRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
 
 app.use('/privacy_policy', function(req, res) {
   res.sendFile('public/privacy_policy.html');
@@ -169,15 +162,24 @@ app.use('/google56f22af42e685870', function(req, res) {
 
 
 app.get('/auth/google',
-  passport.authenticate('google', { scope: [
+  passport.authenticate('google', {scope: [
     'https://www.googleapis.com/auth/plus.login',
-    'https://www.googleapis.com/auth/plus.profile.emails.read'] }));
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email' 
+    ]
+  })
+);
 
 app.get('/auth/google/callback', passport.authenticate( 'google', {
   successRedirect: '/',
   failureRedirect: '/error'
-})
+  })
 );
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
 // error handler
 app.use(function(err, req, res, next) {
