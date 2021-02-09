@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 
 var indexRouter = require('./routes/index');
 var usuariosRouter = require('./routes/usuarios');
+
 var tokenRouter = require('./routes/token');
 var bicicletasRouter = require('./routes/bicicletas');
 
@@ -147,7 +148,6 @@ app.use('/', indexRouter);
 app.use('/usuarios', usuariosRouter);
 app.use('/token', tokenRouter);
 
-app.use('/users', usersRouter);
 app.use('/bicicletas', loggedIn, bicicletasRouter);
 
 app.use('/api/auth', authAPIRouter);
